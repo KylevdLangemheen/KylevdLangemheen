@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Kyle van de Langemheen</title><link>https://kylevdlangemheen.com/post/</link><description>Recent content in Posts on Kyle van de Langemheen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 23 Oct 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://kylevdlangemheen.com/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Skilltree Test Page</title><link>https://kylevdlangemheen.com/p/skilltree-test-page/</link><pubDate>Wed, 23 Oct 2024 00:00:00 +0000</pubDate><guid>https://kylevdlangemheen.com/p/skilltree-test-page/</guid><description>&lt;!DOCTYPE html>
+&lt;html lang="en">
+&lt;head>
+&lt;meta charset="UTF-8">
+&lt;!-- Include any required styles here -->
+&lt;style>
+/* Your existing styles */
+svg {
+display: block;
+width: 100%;
+height: auto;
+}
+&lt;/style>
+&lt;/head>
+&lt;body>
+&lt;div id="container">&lt;/div>
+&lt;script type="module">
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+const container = d3.select("#container");
+const width = parseInt(container.style("width"), 10);
+const height = Math.max(50+200*3+50, parseInt(container.style("width"), 10));
+const svg = container.append("svg")
+.attr("overflow", "visible")
+.attr("position", "relative")
+.attr("z-index", "2")
+.attr("viewBox", [-width/2, -height/2, width, height]);
+const n = 20;
+const nodes = [
+{"index": 0, "layer": 0, "width": 100, "offset": 0},
+{"index": 1, "layer": 1, "width": 50, "offset": -2},
+{"index": 2, "layer": 1, "width": 150, "offset": -1},
+{"index": 3, "layer": 1, "width": 20, "offset": 0},
+{"index": 4, "layer": 1, "width": 100, "offset": 1},
+{"index": 5, "layer": 1, "width": 100, "offset": 2},
+{"index": 6, "layer": 2, "width": 200, "offset": -6},
+{"index": 7, "layer": 2, "width": 25, "offset": -5},
+{"index": 8, "layer": 2, "width": 25, "offset": -4},
+{"index": 9, "layer": 2, "width": 25, "offset": -3},
+{"index": 10, "layer": 2, "width": 100, "offset": -2},
+{"index": 11, "layer": 2, "width": 120, "offset": -1},
+{"index": 12, "layer": 2, "width": 120, "offset": 0},
+{"index": 13, "layer": 2, "width": 50, "offset": 1},
+{"index": 14, "layer": 2, "width": 55, "offset": 2},
+{"index": 15, "layer": 2, "width": 50, "offset": 3},
+{"index": 16, "layer": 2, "width": 100, "offset": 4},
+{"index": 17, "layer": 2, "width": 100, "offset": 5},
+{"index": 18, "layer": 3, "width": 30, "offset": 0},
+{"index": 19, "layer": 3, "width": 100, "offset": 1},
+];
+const links = [
+{"source": 0, "target": 1, "distance": 200, "type": "parent-child"},
+{"source": 0, "target": 2, "distance": 200, "type": "parent-child"},
+{"source": 0, "target": 3, "distance": 200, "type": "parent-child"},
+{"source": 0, "target": 4, "distance": 200, "type": "parent-child"},
+{"source": 0, "target": 5, "distance": 200, "type": "parent-child"},
+{"source": 1, "target": 6, "distance": 200, "type": "parent-child"},
+{"source": 1, "target": 7, "distance": 200, "type": "parent-child"},
+{"source": 2, "target": 8, "distance": 200, "type": "parent-child"},
+{"source": 2, "target": 9, "distance": 200, "type": "parent-child"},
+{"source": 3, "target": 10, "distance": 200, "type": "parent-child"},
+{"source": 3, "target": 11, "distance": 200, "type": "parent-child"},
+{"source": 4, "target": 12, "distance": 200, "type": "parent-child"},
+{"source": 4, "target": 13, "distance": 200, "type": "parent-child"},
+{"source": 4, "target": 14, "distance": 200, "type": "parent-child"},
+{"source": 5, "target": 15, "distance": 200, "type": "parent-child"},
+{"source": 5, "target": 16, "distance": 200, "type": "parent-child"},
+{"source": 5, "target": 17, "distance": 200, "type": "parent-child"},
+{"source": 13, "target": 18, "distance": 200, "type": "parent-child"},
+{"source": 13, "target": 19, "distance": 200, "type": "parent-child"},
+];
+function calculateDistance(parentIndex, childIndex, nodes) {
+const parentNode = nodes[parentIndex];
+const childNode = nodes[childIndex];
+// If the child node has offset 0, n = 0
+if (childNode.offset === 0) return 200; // Diagonal is just vertical distance
+const siblings = nodes.filter(n => n.layer === childNode.layer);
+// Find the sibling with offset 0
+const siblingWithOffset0 = siblings.find(sibling => sibling.offset === 0);
+// Find the width of child node (w_a) and sibling with offset 0 (w_b)
+const w_a = childNode.width;
+const w_b = siblingWithOffset0 ? siblingWithOffset0.width : 0;
+// Calculate the sum of widths of nodes between the child and sibling with offset 0 (w_x)
+let w_x = 0;
+const minOffset = Math.min(childNode.offset, 0);
+const maxOffset = Math.max(childNode.offset, 0);
+siblings.forEach(sibling => {
+if (sibling.offset > minOffset &amp;&amp; sibling.offset &lt; maxOffset) {
+w_x += sibling.width;
+}
+});
+// Calculate n
+const n = 0.5 * w_a + w_x + 0.5 * w_b;
+// Calculate the distance using the formula Math.sqrt(200*200 + n*n)
+const distance = Math.sqrt(200 * 200 + n * n);
+return distance;
+}
+links.forEach(link => {
+const parentIndex = link.source;
+const childIndex = link.target;
+link.distance = calculateDistance(parentIndex, childIndex, nodes);
+});
+for (let l = 1; l &lt;= 3; l++) {
+// Get all nodes on layer l
+const layerNodes = nodes.filter(node => node.layer === l);
+// For each node a on layer l
+for (let i = 0; i &lt; layerNodes.length; i++) {
+const a = layerNodes[i];
+// For each remaining other node b on layer l
+let d = a.width/2;
+for (let j = i + 1; j &lt; layerNodes.length; j++) {
+const b = layerNodes[j];
+const t = i+1==j ? "neighbour" : "sibling";
+// Form a link
+links.push({ "source": a.index, "target": b.index, "distance": d+b.width/2, "type": t});
+d += b.width;
+}
+}
+}
+const parentChildLinks = links.filter(link => link.type === "parent-child");
+const siblingLinks = links.filter(link => link.type === "sibling");
+const maxSiblingDistance = Math.max(...siblingLinks.map(link => link.distance));
+const width_excess = Math.max(0., ((maxSiblingDistance+200)/width)-1);
+let parentChildStrength = 2; // Initial strength for parent-child links
+let siblingStrength = .2;
+let xStrength = 0.0;
+let yStrength = 1.;
+const decayRatePC = 0.03; // The rate at which strength reduces over time
+const decayRateS = 0.03; // The rate at which strength reduces over time
+const decayRateX = 0.0;
+const decayRateY = 0.1;
+const shrinkRate = 0.98;
+let simulation = d3.forceSimulation(nodes).on("tick", ticked);
+function adjustSiblingLinks() {
+// Step 2: For each layer, find min/max x values and adjust sibling links if necessary
+const layers = [...new Set(nodes.map(node => node.layer))];
+layers.forEach(layer => {
+const layerNodes = nodes.filter(node => node.layer === layer);
+const minXNode = layerNodes.reduce((minNode, node) => node.x &lt; minNode.x ? node : minNode, layerNodes[0]);
+const maxXNode = layerNodes.reduce((maxNode, node) => node.x > maxNode.x ? node : maxNode, layerNodes[0]);
+// If the difference exceeds the width threshold, adjust sibling link distances
+if ((maxXNode.x + maxXNode.width/2) - (minXNode.x - minXNode.width/2) > width+100) {
+links.forEach(link => {
+// Check if link is sibling type and both nodes are in this layer
+if (link.type === 'sibling' &amp;&amp;
+layerNodes.some(node => node.index === link.source.index) &amp;&amp;
+layerNodes.some(node => node.index === link.target.index)) {
+// Shrink the link's distance
+link.distance *= shrinkRate;
+}
+});
+}
+});
+}
+function ticked() {
+adjustSiblingLinks();
+simulation.force("outward", d3.forceManyBody().strength(-100).distanceMin(10).distanceMax(100))
+parentChildStrength = Math.max(1, parentChildStrength - decayRatePC);
+siblingStrength = Math.max(2, siblingStrength - decayRateS);
+//xStrength = Math.max(0., xStrength-decayRateX);
+yStrength = Math.max(.5, yStrength-decayRateY);
+//simulation.force("y", d3.forceY()
+// .y(function(d){
+// return (50 + 200 * d.layer)-height/2;
+// })
+// .strength(yStrength)
+// )
+//simulation.force("x", d3.forceX(0).strength(xStrength))
+simulation.force("parent-child-links", d3.forceLink(parentChildLinks)
+.strength(0.)
+.distance(d => d.distance)
+.iterations(5));
+simulation.force("sibling-links", d3.forceLink(links.filter(link => link.type === "sibling"))
+.strength(d => .1)
+.distance(d => d.distance)
+.iterations(3))
+simulation.force("neighbour-links", d3.forceLink(links.filter(link => link.type === "neighbour"))
+.strength(d => .2)
+.distance(d => d.distance)
+.iterations(5))
+simulation.force("x_attract_to_parent", d3.forceX()
+.x(function(d) {
+// Find the link where d is the child (target)
+const link = parentChildLinks.find(l => l.target.index === d.index);
+if (link) {
+// Attract the child to the parent's x position
+return link.source.x;
+}
+return 0; // No force applied if the node is not a child
+})
+.strength(function(d) {
+// Find out in which layer d is
+const layerNodes = nodes.filter(node => node.layer === d.layer);
+// Calculate the total width across all nodes in the same layer
+const totalWidth = layerNodes.reduce((sum, node) => sum + node.width, 0);
+// Calculate the excess width
+const excessWidth = Math.max(0, (totalWidth / width) - 1);
+// Only apply the force to child nodes (those that are a target in a parent-child link)
+return parentChildLinks.some(link => link.target.index === d.index) ? 0.2 : 0.;
+}))
+simulation.force("y_repel_from_parent", d3.forceY()
+.y(function(d) {
+// Find the link where d is the child (target)
+const link = parentChildLinks.find(l => l.target.index === d.index);
+if (link) {
+// Attract the child to the parent's x position
+return link.source.y+150;
+}
+return 0; // No force applied if the node is not a child
+})
+.strength(function(d) {
+const link = parentChildLinks.find(link => link.target.index === d.index);
+if (!(link)) return 0;
+const direction = link.target.y - (link.source.y + 150);
+return Math.min(Math.abs(direction), yStrength);
+}))
+node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+link.attr("x1", (d) => d.source.x).attr("y1", (d) => d.source.y);
+link.attr("x2", (d) => d.target.x).attr("y2", (d) => d.target.y);
+}
+nodes[0].fx = 0;
+nodes[0].fy = 50-height/2;
+const link = svg.append("g")
+.attr("stroke", "currentColor")
+.attr("stroke-opacity", 0.3)
+.selectAll()
+.data(links)
+.join("line");
+const node = svg.append("g")
+.attr("fill", "currentColor")
+.selectAll()
+.data(nodes)
+.join("circle")
+.attr("r", 2.5);
+const drag = d3.drag()
+.subject(({x, y}) => simulation.find(x - width/2, y - height/2, 40))
+.on("start", dragstarted)
+.on("drag", dragged)
+.on("end", dragended);
+function dragstarted(event) {
+if (!event.active) simulation.alphaTarget(0.3).restart();
+event.subject.fx = event.subject.x;
+event.subject.fy = event.subject.y;
+}
+function dragged(event) {
+if (event.subject == nodes[0]) return;
+event.subject.fx = event.x;
+event.subject.fy = event.y;
+}
+function dragended(event) {
+if (!event.active) simulation.alphaTarget(0);
+if (event.subject == nodes[0]) return;
+event.subject.fx = null;
+event.subject.fy = null;
+}
+// Apply the drag behavior to the SVG
+svg.call(drag);
+&lt;/script>
+&lt;/body>
+&lt;/html></description></item><item><title>PAC Winrate Analysis</title><link>https://kylevdlangemheen.com/p/pac-winrate/</link><pubDate>Tue, 22 Oct 2024 00:00:00 +0000</pubDate><guid>https://kylevdlangemheen.com/p/pac-winrate/</guid><description>&lt;img src="https://kylevdlangemheen.com/p/pac-winrate/pac.png" alt="Featured image of post PAC Winrate Analysis" />&lt;h2 id="analysing-game-data">Analysing game data
+&lt;/h2>&lt;p>Who doesn&amp;rsquo;t want to (over)analyse the games they&amp;rsquo;re playing? Well, even if you wanted to most games don&amp;rsquo;t make their data publicly available. This is why, when a surprisingly deep &lt;a class="link" href="https://en.wikipedia.org/wiki/Auto_battler" target="_blank" rel="noopener"
+>auto battler&lt;/a> made their data available, I jumped on the opportunity.&lt;/p>
+&lt;h2 id="what-is-pac">What is PAC
+&lt;/h2>&lt;p>PAC is an open-source auto chess game developed by just two fans. It features art from various commisioned artists and units from an &lt;a class="link" href="https://en.wikipedia.org/wiki/List_of_highest-grossing_media_franchises" target="_blank" rel="noopener"
+>extremely recognizable franchise&lt;/a>. More than that, it has some of the highest variety of unit interaction I have seen in this genre. A match plays out over multiple rounds. Each round, your team automatically fights one of 7 other opponent&amp;rsquo;s team. The loser loses some HP. Afterwards, both the victor and the loser gain some gold to buy new units before the next round starts.&lt;/p>
+&lt;p>&lt;img src="https://kylevdlangemheen.com/p/pac-winrate/board.png"
+width="1261"
+height="679"
+srcset="https://kylevdlangemheen.com/p/pac-winrate/board_hu1772288566533622442.png 480w, https://kylevdlangemheen.com/p/pac-winrate/board_hu11895296949194581590.png 1024w"
+loading="lazy"
+alt="Example of an early board state with unit synergies on the left"
+class="gallery-image"
+data-flex-grow="185"
+data-flex-basis="445px"
+>&lt;/p>
+&lt;p>This pattern of team crafting and automated fighting repeats until your HP reaches zero or you&amp;rsquo;re the last player standing. As such the outcome of a game is a ranking between 1 (the winner) and 8 (the first to be eliminated). Your final board state as you win or are eliminated is recorded, including all the units on your board at that time.&lt;/p>
+&lt;h2 id="winrate-analysis">Winrate Analysis
+&lt;/h2>&lt;p>Using this data I look at how often a certain unit appears on the final board, and what the outcome for that board was. As there are too many units and variants to get into, for now I&amp;rsquo;m limiting myself to a single category (&amp;ldquo;Uniques&amp;rdquo;). I also filter out units/variants that were played too infrequently (lowest quantile of play rate).&lt;/p>
+&lt;p>In the figure below the x-axis indicates the mean outcome, whereas the y-axis represents the standard deviation of this outcome. This allows us to differentiate between low vs high winrate units as well as the consistency in their placement.&lt;/p>
+&lt;h2 id="interactive-graph">Interactive Graph
+&lt;/h2>&lt;p>&lt;strong>The plot below is interactive! Try zooming in&lt;/strong>&lt;/p>
+&lt;script src="https://cdn.plot.ly/plotly-latest.min.js">&lt;/script>
+&lt;div id="plotly-div" class="plotly-div">&lt;/div>
+&lt;script>
+const lightLayout = {
+'font.color': '#000000',
+'xaxis.gridcolor': '#000000',
+'yaxis.gridcolor': '#000000',
+};
+const darkLayout = {
+'font.color': '#ffffff',
+'xaxis.gridcolor': '#ffffff',
+'yaxis.gridcolor': '#ffffff',
+};
+function getCurrentTheme() {
+return document.documentElement.dataset.scheme || 'light';
+}
+function updatePlotlyTheme(theme) {
+const newLayout = theme === "dark" ? darkLayout : lightLayout;
+Plotly.relayout('plotly-div', newLayout);
+}
+fetch('figure.json')
+.then(response => response.json())
+.then(fig => {
+Plotly.newPlot('plotly-div', fig.data, fig.layout, { responsive: true });
+updatePlotlyTheme(getCurrentTheme());
+});
+const observer = new MutationObserver((mutationsList) => {
+for (const mutation of mutationsList) {
+if (mutation.type === 'attributes' &amp;&amp; mutation.attributeName === 'data-scheme') {
+const newTheme = getCurrentTheme();
+updatePlotlyTheme(newTheme);
+}
+}
+});
+observer.observe(document.documentElement, { attributes: true });
+window.addEventListener('unload', () => {
+observer.disconnect();
+});
+&lt;/script>
+&lt;h2 id="conclusion">Conclusion
+&lt;/h2>&lt;p>As you can see, the most played units are of relatively high winrate and high consistency. This means the playerbase knows what they&amp;rsquo;re doing! There&amp;rsquo;s also a tail of lower consistency lower winrate units. As these analysis go, it&amp;rsquo;s always hard to tell which direction the causality goes: are they less popular because they&amp;rsquo;re less consistent, or are they less consistent because they&amp;rsquo;re not played enough? Either way it&amp;rsquo;s good to see that there are no units that are consistently bad, and only one unit that approaches on the &amp;ldquo;inconsistently&amp;rdquo; good territory. This might be a problematic unit, as it might be an indication that it completely dominates some games but performs subpar in others. And indeed, with the benefit of hindsight, this unit got changed in the next patch.&lt;/p>
+&lt;blockquote>
+&lt;p>PAC is open source made by &lt;a class="link" href="https://github.com/keldaanCommunity/pokemonAutoChess" target="_blank" rel="noopener"
+>2 fans&lt;/a>. Play on &lt;a class="link" href="https://pokemon-auto-chess.com/" target="_blank" rel="noopener"
+>PAC&lt;/a>&lt;/p>
+&lt;/blockquote></description></item></channel></rss>
